@@ -4,7 +4,7 @@ from collections import defaultdict
 import re
 import pdfplumber
 import docx
-#import fitz
+import fitz  # PyMuPDF
 
 st.set_page_config(page_title="Risk Assessment Tool", layout="centered")
 st.title("Risk Assessment Tool")
