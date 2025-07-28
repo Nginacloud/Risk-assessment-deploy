@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 from collections import defaultdict
 import re
-import pdfplumber
+#import pdfplumber
 import docx
 import fitz
 
