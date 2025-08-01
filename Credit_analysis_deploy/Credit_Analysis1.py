@@ -35,22 +35,47 @@ def extract_text(file, password=None):
     return extracted_text #customer_name
 
 # M-PESA SECTION 
-def categorize_mpesa(Details):
-    Details_lower = Details.lower()
-    if "airtime" in Details_lower:
-        return "Airtime"
-    if any(x in Details_lower for x in ["game", "betika", "sportpesa"]):
-        return "Betting"
-    if any(x in Details_lower for x in ["fuel", "petroleum", "gas", "diesel", "oil", "petrol", " Shell", " Total Energies", "Petro"]):
+import re
+
+def categorize_mpesa(details):
+    text = details.lower().strip()
+
+    # Define category patterns
+    fuel_keywords = r"\b(fuel|petroleum|gas|diesel|oil|petrol|shell|totalenergies|petrol|rubis|Ola Energy|Energies)\b"
+    shopping_keywords = r"(supermarket|quickmart|naivas|chandarana|kaluu foods|nguku wholesalers|Clean Shelf|Magunas|tuskys|carrefour)"
+    utility_keywords = r"(kplc|electric|prepaid|expressway|water)"
+    airtime_keywords = r"\bairtime\b|\bbundle\b"
+    betting_keywords = r"(betika|sportpesa|odibet|jackpot)"
+    paybill_keywords = r"(pay bill|paybill)"
+    buy_goods_keywords = r"(buy goods|merchant payment|till)"
+    agent_keywords = r"(withdraw|agent)"
+    salary_keywords = r"\bpayment from\b"#r"(salary payment|business payment|equity bulk|kopo kopo)"
+    loan_keywords = r"(mpesa overdraw|od loan repayment)"
+    Credit = r"(Watu Credit|Kopo Kopo|KCB M-PESA|Momentum|Lin Cap|Mogo|)"
+
+    # Match categories by priority
+    if re.search(fuel_keywords, text):
         return "Fuel"
-    if any(x in Details_lower for x in ["loan", "fuliza", "overdraft"]):
-        return "Loan"
-    if "pay bill" in Details_lower or "paybill" in Details_lower:
+    if re.search(shopping_keywords, text):
+        return "Shopping"
+    if re.search(utility_keywords, text):
+        return "Utilities"
+    if re.search(airtime_keywords, text):
+        return "Airtime/Data"
+    if re.search(betting_keywords, text):
+        return "Betting"
+    if re.search(paybill_keywords, text):
         return "Pay Bill"
-    if "buy goods" in Details_lower or "merchant payment" in Details_lower:
+    if re.search(buy_goods_keywords, text):
         return "Buy Goods"
-    if "withdraw" in Details_lower or "agent" in Details_lower:
+    if re.search(agent_keywords, text):
         return "Agent Withdrawal"
+    if re.search(salary_keywords, text):
+        return "Income"
+    if re.search(loan_keywords, text):
+        return "Loan Repayment"
+    if re.search(Credit, text):
+        return "Credit"
     else:
         return "Other"
 
@@ -69,12 +94,20 @@ def process_mpesa(text):
                 amount_str = match.group(1).replace(",", "")
                 try:
                     amount = float(amount_str)
-                    #Details = (line + " " + lines[i + 1]) if i + 1 < len(lines) else line
-                    #base_category = categorize_mpesa(Details)
+                    Details = (line + " " + lines[i + 1]) if i + 1 < len(lines) else line
+                    base_category = categorize_mpesa(Details)
+
+                    #details_lines = [line]
+                    #for j in range(1, 20):  # You can increase the range if needed
+                    #    if i + j < len(lines):
+                    #       details_lines.append(lines[i + j])
+                    #Details = " ".join(details_lines)
+
                     details_lines = [line]
-                    for j in range(1, 7):  # You can increase the range if needed
-                        if i + j < len(lines):
-                            details_lines.append(lines[i + j])
+                    for j in range(1, len(lines) - i):
+                        if "Completed" in lines[i + j]:  # Stop if next transaction starts
+                            break
+                        details_lines.append(lines[i + j])
                     Details = " ".join(details_lines)
 
                     base_category = categorize_mpesa(Details)
@@ -84,13 +117,15 @@ def process_mpesa(text):
 
                     category = base_category
 
+                    if category == "Other":
+                        category = f"Other ({direction})"
                     # Specific overrides for loan disbursement vs repayment
-                    if base_category == "Loan":
-                        category = "Loan Repayment" if amount > 0 else "Loan Disbursement"
-                    elif base_category == "Other":
-                        category = "Other (Inflow)" if amount > 0 else "Other (Outflow)"
-                    else:
-                        category = base_category
+                    #if base_category == "Loan":
+                    #    category = "Loan Repayment" if amount > 0 else "Loan Disbursement"
+                    #elif base_category == "Other":
+                    #    category = "Other (Inflow)" if amount > 0 else "Other (Outflow)"
+                    #else:
+                    #    category = base_category
 
                     transactions.append({
                         "Details": Details.strip(),
@@ -117,6 +152,85 @@ def process_mpesa(text):
 
     return df, summary
 
+#Bank Statements
+def extract_bank(text):
+    # Remove multiple blank lines to ensure consistency
+    text = re.sub(r'\n\s*\n+', '\n', text)
+    text = re.sub(r'[ \t]+', ' ', text)  # Replace tabs/multiple spaces with a single space
+    text = text.strip()  # Remove leading/trailing whitespace
+
+    # Extract account holder name
+    name_match = re.search(r'Account Holder Name:\s*(.*)', text)
+    account_holder_name = name_match.group(1).strip() if name_match else "N/A"
+
+    # Extract account number
+    account_number_match = re.search(r'Account Number:\s*(\d+)', text)
+    account_number = account_number_match.group(1).strip() if account_number_match else "N/A"
+
+    # Extract bank name
+    bank_name_match = re.search(r'Bank Name:\s*(.*)', text)
+    bank_name = bank_name_match.group(1).strip() if bank_name_match else "N/A"
+    # Extract bank branch branch_name_match = re.search(r'Branch Name:\s*(.*)', text)
+    if bank_file:
+        bank_text = extract_text(bank_file, password=pdf_password)
+    
+    with st.expander("View Extracted Bank Text"):
+        st.write(bank_text)
+
+    bank_summary_info = extract_bank(bank_text)
+    st.subheader("Bank Summary Info")
+    st.json(bank_summary_info)
+
+    bank_df, bank_summary = process_bank(bank_text)
+    if bank_summary is not None:
+        st.subheader("Bank Transaction Analysis")
+        st.dataframe(bank_summary)
+        st.bar_chart(bank_summary.set_index("Category")["Count"])
+    else:
+        st.warning("No valid bank transactions found.")
+
+    return {
+        "Account Holder Name": account_holder_name,
+        "Account Number": account_number,
+        "Bank Name": bank_name
+    }
+
+def process_bank(text):
+    lines = text.split('\n')
+    transactions = []
+    
+    for line in lines:
+        line = line.strip()
+        # Example pattern: "12/07/2025 POS Naivas -2,500.00"
+        match = re.search(r'(\d{1,2}/\d{1,2}/\d{2,4})\s+(.+?)\s+(-?\d{1,3}(?:,\d{3})*(?:\.\d{2}))', line)
+        if match:
+            date_str, details, amount_str = match.groups()
+            try:
+                amount = float(amount_str.replace(",", ""))
+                direction = "Inflow" if amount > 0 else "Outflow"
+                category = categorize_mpesa(details)  # Reusing M-PESA logic
+
+                if category == "Other":
+                    category = f"Other ({direction})"
+
+                transactions.append({
+                    "Date": date_str,
+                    "Details": details.strip(),
+                    "Amount": abs(amount),
+                    "Inflow/Outflow": direction,
+                    "Category": category
+                })
+            except:
+                continue
+
+    if not transactions:
+        return None, None
+
+    df = pd.DataFrame(transactions)
+    summary = df.groupby("Category")["Amount"].sum().reset_index()
+    summary["Count"] = df.groupby("Category")["Amount"].count().values
+
+    return df, summary
 
 # CRB SECTION 
 def extract_crb_data(text):
@@ -243,13 +357,16 @@ mpesa_file = st.file_uploader("Upload M-PESA Statement", type=["txt", "pdf", "do
 st.header("Upload CRB Report (.txt, .pdf, .docx)")
 crb_file = st.file_uploader("Upload CRB Report", type=["txt", "pdf", "docx"], key="crb")
 
+st.header("Upload Bank Statement (.txt, .pdf, .docx)")
+bank_file = st.file_uploader("Upload Bank Statement", type=["txt", "pdf", "docx"], key="bank")
+
 st.info("If your file is encrypted, enter the password below.")
 pdf_password = st.text_input("Enter PDF Password (optional):", type="password")
 
 # Process M-PESA
 if mpesa_file:
     mpesa_text = extract_text(mpesa_file, password=pdf_password)
-    #st.expander("View Extracted M-PESA Text").write(mpesa_text)  # Optional debug
+    st.expander("View Extracted M-PESA Text").write(mpesa_text)  # Optional debug
     mpesa_df, mpesa_summary = process_mpesa(mpesa_text)
 
     if mpesa_summary is not None:
@@ -272,3 +389,9 @@ if crb_file:
     #st.text_area("CRB Report Text", crb_text, height=300)
     #st.subheader("Credit Risk Scores")
     #st.json(crb_scores)
+
+#if bank_file:
+    bank_text = extract_text(bank_file, password=pdf_password) 
+    bank_summary = extract_bank(bank_text)
+    st.subheader("Bank Statement Summary")
+    st.json(bank_summary)

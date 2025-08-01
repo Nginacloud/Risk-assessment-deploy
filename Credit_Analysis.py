@@ -41,14 +41,16 @@ def categorize_mpesa(Details):
         return "Airtime"
     if any(x in Details_lower for x in ["game", "betika", "SportPesa"]):
         return "Betting"
-    if any(x in Details_lower for x in ["fuel", "petroleum", "gas", "diesel", "oil", "petrol", " Shell", " TotalEnergies", "Petro"]):
+    if any(x in Details_lower for x in ["fuel", "petroleum", "gas", "diesel", "oil", "petrol", "shell", "totalenergies", "petroleum"
+    ]):
+    #if any(x in Details_lower for x in ["fuel", "petroleum", "gas", "diesel", "oil", "petrol", " Shell", " TotalEnergies", "Petro"]):
         return "Fuel"
-    if any(x in Details_lower for x in ["loan", "fuliza", "overdraft"]):
+    if any(x in Details_lower for x in ["loan", "overdraft"]):
         return "Loan"
     if "pay bill" in Details_lower or "paybill" in Details_lower:
         return "Pay Bill"
-    if "buy goods" in Details_lower or "merchant payment" in Details_lower:
-        return "Buy Goods"
+    #if "buy goods" in Details_lower or "merchant payment" in Details_lower:
+    #    return "Buy Goods"
     if "withdraw" in Details_lower or "agent" in Details_lower:
         return "Agent Withdrawal"
     else:
