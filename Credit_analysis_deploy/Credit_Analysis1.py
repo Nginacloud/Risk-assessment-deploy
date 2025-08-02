@@ -3,7 +3,7 @@ import pandas as pd
 from collections import defaultdict
 import re
 import pdfplumber
-import docx
+import docx 
 import fitz  # PyMuPDF
 
 st.set_page_config(page_title="Risk Assessment Tool", layout="centered")
@@ -41,7 +41,7 @@ def categorize_mpesa(details):
     text = details.lower().strip()
 
     # Define category patterns
-    fuel_keywords = r"\b(fuel|petroleum|gas|diesel|oil|petrol|shell|totalenergies|petrol|rubis|Ola Energy|Energies)\b"
+    fuel_keywords = r"\b(fuel|petroleum|gas|diesel|oil|petrol|shell|totalenergies|petrol|rubis|Ola Energy|EnergiesCredit)\b"
     shopping_keywords = r"(supermarket|quickmart|naivas|chandarana|kaluu foods|nguku wholesalers|Clean Shelf|Magunas|tuskys|carrefour)"
     utility_keywords = r"(kplc|electric|prepaid|expressway|water)"
     airtime_keywords = r"\bairtime\b|\bbundle\b"
@@ -353,6 +353,7 @@ def extract_crb_data(text):
 # FILE UPLOAD + DISPLAY 
 st.header("Upload M-PESA Statement (.txt, .pdf, .docx)")
 mpesa_file = st.file_uploader("Upload M-PESA Statement", type=["txt", "pdf", "docx"], key="mpesa")
+st.button = st.button("Process M-PESA", key="process_mpesa")
 
 st.header("Upload CRB Report (.txt, .pdf, .docx)")
 crb_file = st.file_uploader("Upload CRB Report", type=["txt", "pdf", "docx"], key="crb")
