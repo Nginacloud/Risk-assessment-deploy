@@ -41,7 +41,7 @@ def categorize_mpesa(details):
     text = details.lower().strip()
 
     # Define category patterns
-    fuel_keywords = r"\b(fuel|petroleum|gas|diesel|oil|petrol|shell|totalenergies|petrol|rubis|Ola Energy|EnergiesCredit)\b"
+    fuel_keywords = r"(fuel|petroleum|gas|diesel|oil|petrol|shell|totalenergies|petrol|rubis|Ola Energy|Energies|Kobil|KenolKobil)"
     shopping_keywords = r"(supermarket|quickmart|naivas|chandarana|kaluu foods|nguku wholesalers|Clean Shelf|Magunas|tuskys|carrefour)"
     utility_keywords = r"(kplc|electric|prepaid|expressway|water)"
     airtime_keywords = r"\bairtime\b|\bbundle\b"
