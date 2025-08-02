@@ -353,7 +353,7 @@ def extract_crb_data(text):
 # FILE UPLOAD + DISPLAY 
 st.header("Upload M-PESA Statement (.txt, .pdf, .docx)")
 mpesa_file = st.file_uploader("Upload M-PESA Statement", type=["txt", "pdf", "docx"], key="mpesa")
-st.button = st.button("Process M-PESA", key="process_mpesa")
+#st.button = st.button("Process M-PESA", key="process_mpesa")
 
 st.header("Upload CRB Report (.txt, .pdf, .docx)")
 crb_file = st.file_uploader("Upload CRB Report", type=["txt", "pdf", "docx"], key="crb")
