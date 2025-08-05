@@ -51,7 +51,10 @@ def categorize_mpesa(details):
     agent_keywords = r"(withdraw|agent)"
     salary_keywords = r"\bpayment from\b"#r"(salary payment|business payment|equity bulk|kopo kopo)"
     loan_keywords = r"(mpesa overdraw|od loan repayment)"
-    Credit = r"(Watu Credit|Kopo Kopo|KCB M-PESA|Momentum|Lin Cap|Mogo|)"
+    WatuCredit = r"(Watu Credit)"
+    PlatinumCredit = r"(Platinum)"
+    Mogocredit = r"(Mogo)"
+    MomentumCredit = r"(Momemntum)"
 
     # Match categories by priority
     if re.search(fuel_keywords, text):
@@ -74,8 +77,14 @@ def categorize_mpesa(details):
         return "Income"
     if re.search(loan_keywords, text):
         return "Loan Repayment"
-    if re.search(Credit, text):
-        return "Credit"
+    if re.search(WatuCredit, text):
+        return "WatuCredit"
+    if re.search(Momentum, text):
+        return "MomentumCredit"
+    if re.search(Platinum, text):
+        return "PlatinumCredit"
+    if re.search(Mogo, text):
+        return "MogoCredit"
     else:
         return "Other"
 
