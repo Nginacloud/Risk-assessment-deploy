@@ -231,18 +231,7 @@ def process_bank(text):
     summary["Count"] = df.groupby("Category")["Amount"].count().values
 
     return df, summary
-# Process M-PESA
-if mpesa_file:
-    mpesa_text = extract_text(mpesa_file, password=pdf_password)
-    st.expander("View Extracted M-PESA Text").write(mpesa_text)  # Optional debug
-    mpesa_df, mpesa_summary = process_mpesa(mpesa_text)
 
-    if mpesa_summary is not None:
-        st.subheader("M-PESA Expense Analysis")
-        st.dataframe(mpesa_summary)
-        st.bar_chart(mpesa_summary.set_index("Category")["Count"])
-    else:
-        st.warning("No valid M-PESA transactions found.")
 # CRB SECTION 
 def extract_crb_data(text):
     # Remove multiple blank lines to ensure consistency
@@ -365,6 +354,18 @@ def extract_crb_data(text):
 st.header("Upload M-PESA Statement (.txt, .pdf, .docx)")
 mpesa_file = st.file_uploader("Upload M-PESA Statement", type=["txt", "pdf", "docx"], key="mpesa")
 #st.button = st.button("Process M-PESA", key="process_mpesa")
+# Process M-PESA
+if mpesa_file:
+    mpesa_text = extract_text(mpesa_file, password=pdf_password)
+    st.expander("View Extracted M-PESA Text").write(mpesa_text)  # Optional debug
+    mpesa_df, mpesa_summary = process_mpesa(mpesa_text)
+
+    if mpesa_summary is not None:
+        st.subheader("M-PESA Expense Analysis")
+        st.dataframe(mpesa_summary)
+        st.bar_chart(mpesa_summary.set_index("Category")["Count"])
+    else:
+        st.warning("No valid M-PESA transactions found.")
 
 st.header("Upload CRB Report (.txt, .pdf, .docx)")
 crb_file = st.file_uploader("Upload CRB Report", type=["txt", "pdf", "docx"], key="crb")
