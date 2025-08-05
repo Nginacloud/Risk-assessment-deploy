@@ -363,6 +363,17 @@ def extract_crb_data(text):
 st.header("Upload M-PESA Statement (.txt, .pdf, .docx)")
 mpesa_file = st.file_uploader("Upload M-PESA Statement", type=["txt", "pdf", "docx"], key="mpesa")
 #st.button = st.button("Process M-PESA", key="process_mpesa")
+
+st.header("Upload CRB Report (.txt, .pdf, .docx)")
+crb_file = st.file_uploader("Upload CRB Report", type=["txt", "pdf", "docx"], key="crb")
+
+st.header("Upload Bank Statement (.txt, .pdf, .docx)")
+bank_file = st.file_uploader("Upload Bank Statement", type=["txt", "pdf", "docx"], key="bank")
+
+st.info("If your file is encrypted, enter the password below.")
+pdf_password = st.text_input("Enter PDF Password (optional):", type="password")
+
+
 # Process M-PESA
 if mpesa_file:
     mpesa_text = extract_text(mpesa_file, password=pdf_password)
@@ -375,17 +386,6 @@ if mpesa_file:
         st.bar_chart(mpesa_summary.set_index("Category")["Count"])
     else:
         st.warning("No valid M-PESA transactions found.")
-
-st.header("Upload CRB Report (.txt, .pdf, .docx)")
-crb_file = st.file_uploader("Upload CRB Report", type=["txt", "pdf", "docx"], key="crb")
-
-st.header("Upload Bank Statement (.txt, .pdf, .docx)")
-bank_file = st.file_uploader("Upload Bank Statement", type=["txt", "pdf", "docx"], key="bank")
-
-st.info("If your file is encrypted, enter the password below.")
-pdf_password = st.text_input("Enter PDF Password (optional):", type="password")
-
-
 
 # Process CRB
 if crb_file:
