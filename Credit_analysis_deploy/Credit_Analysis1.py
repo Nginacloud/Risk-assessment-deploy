@@ -79,11 +79,11 @@ def categorize_mpesa(details):
         return "Loan Repayment"
     if re.search(watucredit_keywords, text):
         return "WatuCredit"
-    if re.search(momentum_keywords, text):
+    if re.search(momentumcredit_keywords, text):
         return "MomentumCredit"
-    if re.search(platinum_keywords, text):
+    if re.search(platinumcredit_keywords, text):
         return "PlatinumCredit"
-    if re.search(mogo_keywords, text):
+    if re.search(mogocredit_keywords, text):
         return "MogoCredit"
     else:
         return "Other"
