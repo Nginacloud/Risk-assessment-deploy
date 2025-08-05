@@ -41,7 +41,7 @@ def categorize_mpesa(details):
     text = details.lower().strip()
 
     # Define category patterns
-    fuel_keywords = r"(fuel|petroleum|gas|diesel|oil|petrol|shell|totalenergies|petrol|rubis|Ola Energy|Energies|Kobil|KenolKobil)"
+    fuel_keywords = r"(fuel|petroleum|gas|diesel|oil|petrol|shell|totalenergies|petrol|rubis|Ola Energy|Energies|Kobil|KenolKobil|Astrol|Lake oil)"
     shopping_keywords = r"(supermarket|quickmart|naivas|chandarana|kaluu foods|nguku wholesalers|Clean Shelf|Magunas|tuskys|carrefour)"
     utility_keywords = r"(kplc|electric|prepaid|expressway|water)"
     airtime_keywords = r"\bairtime\b|\bbundle\b"
@@ -231,7 +231,18 @@ def process_bank(text):
     summary["Count"] = df.groupby("Category")["Amount"].count().values
 
     return df, summary
+# Process M-PESA
+if mpesa_file:
+    mpesa_text = extract_text(mpesa_file, password=pdf_password)
+    st.expander("View Extracted M-PESA Text").write(mpesa_text)  # Optional debug
+    mpesa_df, mpesa_summary = process_mpesa(mpesa_text)
 
+    if mpesa_summary is not None:
+        st.subheader("M-PESA Expense Analysis")
+        st.dataframe(mpesa_summary)
+        st.bar_chart(mpesa_summary.set_index("Category")["Count"])
+    else:
+        st.warning("No valid M-PESA transactions found.")
 # CRB SECTION 
 def extract_crb_data(text):
     # Remove multiple blank lines to ensure consistency
@@ -364,18 +375,7 @@ bank_file = st.file_uploader("Upload Bank Statement", type=["txt", "pdf", "docx"
 st.info("If your file is encrypted, enter the password below.")
 pdf_password = st.text_input("Enter PDF Password (optional):", type="password")
 
-# Process M-PESA
-if mpesa_file:
-    mpesa_text = extract_text(mpesa_file, password=pdf_password)
-    st.expander("View Extracted M-PESA Text").write(mpesa_text)  # Optional debug
-    mpesa_df, mpesa_summary = process_mpesa(mpesa_text)
 
-    if mpesa_summary is not None:
-        st.subheader("M-PESA Expense Analysis")
-        st.dataframe(mpesa_summary)
-        st.bar_chart(mpesa_summary.set_index("Category")["Count"])
-    else:
-        st.warning("No valid M-PESA transactions found.")
 
 # Process CRB
 if crb_file:
